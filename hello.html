@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Chickengun Clicker</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+    color: white;
+    overflow-x: hidden;
+
+    background:
+        radial-gradient(circle at 50% 20%, rgba(120, 30, 180, .10), transparent 30%),
+        radial-gradient(circle at 20% 80%, rgba(0, 120, 255, .05), transparent 25%),
+        radial-gradient(circle at 80% 80%, rgba(255, 70, 0, .05), transparent 25%),
+        #010102;
+}
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+
+    background:
+        linear-gradient(rgba(255,255,255,.012) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.012) 1px, transparent 1px);
+
+    background-size: 45px 45px;
+
+    mask-image: linear-gradient(to bottom, black, transparent);
+    z-index: -3;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -2;
+
+    background:
+        radial-gradient(circle at 50% 45%,
+        rgba(255, 140, 0, .025),
+        transparent 35%);
+}
+
+/* =========================================================
+   CONTAINER
+========================================================= */
+
+.container {
+    width: min(1150px, 94%);
+    margin: auto;
+    padding: 25px 0 50px;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+header h1 {
+    font-size: clamp(32px, 6vw, 58px);
+    font-weight: 900;
+    letter-spacing: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ffe600,
+            #ff8c00,
+            #ff3cac,
+            #8b5cf6
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+
+    filter:
+        drop-shadow(0 0 18px rgba(255,140,0,.25));
+}
+
+header p {
+    color: #777;
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+/* =========================================================
+   SVG ICON SYSTEM
+========================================================= */
+
+.icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.icon.big {
+    width: 26px;
+    height: 26px;
+}
+
+.icon.gold {
+    color: #ffe600;
+    filter: drop-shadow(0 0 7px rgba(255,230,0,.7));
+}
+
+.icon.blue {
+    color: #38bdf8;
+    filter: drop-shadow(0 0 7px rgba(56,189,248,.7));
+}
+
+.icon.purple {
+    color: #a855f7;
+    filter: drop-shadow(0 0 7px rgba(168,85,247,.7));
+}
+
+.icon.red {
+    color: #ff4545;
+    filter: drop-shadow(0 0 7px rgba(255,69,69,.7));
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.stat {
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.055),
+            rgba(255,255,255,.018)
+        );
+
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    padding: 18px;
+
+    text-align: center;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.5),
+        inset 0 1px rgba(255,255,255,.03);
+
+    backdrop-filter: blur(12px);
+
+    transition:
+        transform .2s,
+        border-color .2s,
+        box-shadow .2s;
+}
+
+.stat:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255,140,0,.3);
+
+    box-shadow:
+        0 10px 35px rgba(0,0,0,.7),
+        0 0 20px rgba(255,140,0,.06);
+}
+
+.stat::after {
+    content: "";
+    position: absolute;
+
+    width: 80px;
+    height: 80px;
+
+    top: -40px;
+    right: -40px;
+
+    border-radius: 50%;
+    background: rgba(255,140,0,.06);
+    filter: blur(15px);
+}
+
+.stat-title {
+    color: #777;
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.stat-value {
+    font-size: 25px;
+    font-weight: 900;
+
+    color: white;
+
+    text-shadow:
+        0 0 12px rgba(255,255,255,.15);
+}
+
+/* =========================================================
+   GAME
+========================================================= */
+
+.game {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+}
+
+/* =========================================================
+   PANELS
+========================================================= */
+
+.click-area,
+.shop,
+.achievements {
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.045),
+            rgba(255,255,255,.012)
+        );
+
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 22px;
+
+    backdrop-filter: blur(15px);
+
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.65),
+        inset 0 1px rgba(255,255,255,.025);
+}
+
+/* =========================================================
+   CLICK AREA
+========================================================= */
+
+.click-area {
+    min-height: 570px;
+    padding: 30px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    position: relative;
+    overflow: hidden;
+}
+
+.click-area::before {
+    content: "";
+
+    position: absolute;
+
+    width: 450px;
+    height: 450px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,140,0,.08),
+            transparent 65%
+        );
+
+    pointer-events: none;
+
+    animation:
+        ambientGlow 4s ease-in-out infinite;
+}
+
+@keyframes ambientGlow {
+    0%, 100% {
+        transform: scale(.95);
+        opacity: .6;
+    }
+
+    50% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+}
+
+/* =========================================================
+   LEVEL
+========================================================= */
+
+.level {
+    position: relative;
+
+    font-size: 27px;
+    font-weight: 900;
+
+    color: #ffe600;
+
+    text-shadow:
+        0 0 15px rgba(255,230,0,.45);
+
+    margin-bottom: 3px;
+}
+
+/* =========================================================
+   COMBO
+========================================================= */
+
+.combo {
+    height: 28px;
+
+    color: #777;
+
+    font-size: 14px;
+    font-weight: 900;
+
+    transition:
+        color .2s,
+        transform .2s,
+        text-shadow .2s;
+}
+
+.combo.hot {
+    color: #ff7300;
+
+    transform: scale(1.15);
+
+    text-shadow:
+        0 0 10px #ff4500,
+        0 0 25px #ff8c00;
+}
+
+/* =========================================================
+   XP
+========================================================= */
+
+.xp-container {
+    position: relative;
+
+    width: min(500px, 90%);
+    height: 13px;
+
+    background: #080808;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    margin: 12px 0 30px;
+
+    box-shadow:
+        inset 0 0 12px black,
+        0 0 10px rgba(255,140,0,.04);
+}
+
+#xpBar {
+    width: 0%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ffe600,
+            #ff8c00,
+            #ff3cac
+        );
+
+    border-radius: inherit;
+
+    box-shadow:
+        0 0 15px #ff8c00;
+
+    transition:
+        width .25s ease;
+}
+
+/* =========================================================
+   MAIN CHICKENGUN BUTTON
+========================================================= */
+
+.click-wrapper {
+    position: relative;
+
+    width: 300px;
+    height: 300px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.click-wrapper::before,
+.click-wrapper::after {
+    content: "";
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+.click-wrapper::before {
+    width: 300px;
+    height: 300px;
+
+    border:
+        1px solid
+        rgba(255,140,0,.18);
+
+    box-shadow:
+        0 0 40px rgba(255,140,0,.12);
+}
+
+.click-wrapper::after {
+    width: 330px;
+    height: 330px;
+
+    border:
+        1px dashed
+        rgba(255,255,255,.08);
+
+    animation:
+        rotateRing 14s linear infinite;
+}
+
+@keyframes rotateRing {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#clickButton {
+    position: relative;
+
+    width: 260px;
+    height: 260px;
+
+    border-radius: 50%;
+
+    border:
+        4px solid
+        rgba(255,255,255,.16);
+
+    cursor: pointer;
+
+    background-color: #080509;
+
+    /* НОВАЯ КАРТИНКА */
+    background-image:
+        url("https://img.samsungapps.com/productNew/000005804072/ENG/IconImage_20260601073401443_NEW_WAP_ICON_512_512.png");
+
+    background-size: cover;
+    background-position: center;
+
+    box-shadow:
+        0 0 15px rgba(255,140,0,.5),
+        0 0 35px rgba(255,60,172,.35),
+        0 0 80px rgba(139,92,246,.2);
+
+    transition:
+        transform .09s cubic-bezier(.2,.8,.3,1),
+        box-shadow .15s,
+        filter .15s;
+
+    user-select: none;
+    z-index: 2;
+    outline: none;
+
+    overflow: visible;
+}
+
+#clickButton::before {
+    content: "";
+
+    position: absolute;
+    inset: -8px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(255,140,0,.35);
+
+    box-shadow:
+        0 0 25px rgba(255,140,0,.2);
+
+    pointer-events: none;
+
+    transition: .15s;
+}
+
+#clickButton:hover {
+    transform: scale(1.035);
+
+    filter: brightness(1.13);
+
+    box-shadow:
+        0 0 25px rgba(255,230,0,.65),
+        0 0 55px rgba(255,140,0,.5),
+        0 0 100px rgba(255,60,172,.3);
+}
+
+#clickButton:active {
+    transform: scale(.90);
+}
+
+/* =========================================================
+   CLICK ANIMATION
+========================================================= */
+
+#clickButton.clicked {
+    animation:
+        clickPunch .18s
+        cubic-bezier(.2,.8,.3,1);
+}
+
+@keyframes clickPunch {
+    0% {
+        transform: scale(1);
+    }
+
+    30% {
+        transform:
+            scale(.82)
+            rotate(-3deg);
+    }
+
+    55% {
+        transform:
+            scale(1.09)
+            rotate(2deg);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* =========================================================
+   CRITICAL
+========================================================= */
+
+#clickButton.critical {
+    animation:
+        criticalPunch .4s ease-out;
+
+    box-shadow:
+        0 0 30px #ffe600,
+        0 0 70px #ff4500,
+        0 0 130px #ff00aa;
+}
+
+@keyframes criticalPunch {
+    0% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+
+    20% {
+        transform:
+            scale(.76)
+            rotate(-6deg);
+
+        filter: brightness(1.5);
+    }
+
+    50% {
+        transform:
+            scale(1.14)
+            rotate(5deg);
+
+        filter: brightness(1.8);
+    }
+
+    75% {
+        transform: scale(.98);
+    }
+
+    100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+}
+
+/* =========================================================
+   CLICK INFO
+========================================================= */
+
+.click-info {
+    margin-top: 25px;
+    color: #666;
+    font-size: 13px;
+}
+
+/* =========================================================
+   SHOP
+========================================================= */
+
+.shop {
+    padding: 24px;
+    position: relative;
+}
+
+.shop h2 {
+    font-size: 22px;
+    margin-bottom: 17px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* =========================================================
+   UPGRADE
+========================================================= */
+
+.upgrade {
+    position: relative;
+
+    background:
+        rgba(255,255,255,.035);
+
+    border:
+        1px solid
+        rgba(255,255,255,.07);
+
+    border-radius: 15px;
+
+    padding: 15px;
+    margin-bottom: 12px;
+
+    transition:
+        transform .2s,
+        border-color .2s,
+        box-shadow .2s;
+}
+
+.upgrade:hover {
+    transform: translateY(-2px);
+
+    border-color:
+        rgba(255,140,0,.3);
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.5),
+        0 0 18px rgba(255,140,0,.06);
+}
+
+.upgrade h3 {
+    font-size: 15px;
+    margin-bottom: 5px;
+
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.upgrade p {
+    color: #666;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 11px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+button {
+    font-family: inherit;
+}
+
+.upgrade button,
+.reset {
+    width: 100%;
+
+    border: none;
+    border-radius: 10px;
+
+    padding: 12px;
+
+    cursor: pointer;
+
+    color: white;
+    font-weight: 900;
+
+    background:
+        linear-gradient(
+            100deg,
+            #7c3aed,
+            #2563eb
+        );
+
+    box-shadow:
+        0 0 10px rgba(37,99,235,.3),
+        0 0 25px rgba(124,58,237,.12);
+
+    transition:
+        transform .12s,
+        box-shadow .15s,
+        filter .15s;
+}
+
+.upgrade button:hover {
+    transform: translateY(-2px);
+
+    filter: brightness(1.2);
+
+    box-shadow:
+        0 0 15px #2563eb,
+        0 0 35px rgba(124,58,237,.55);
+}
+
+.upgrade button:active {
+    transform: scale(.94);
+
+    box-shadow:
+        0 0 30px #00eaff;
+}
+
+.reset {
+    margin-top: 8px;
+
+    background:
+        linear-gradient(
+            100deg,
+            #991b1b,
+            #dc2626
+        );
+
+    box-shadow:
+        0 0 12px rgba(220,38,38,.3);
+}
+
+.reset:hover {
+    box-shadow:
+        0 0 20px #ef4444,
+        0 0 40px rgba(220,38,38,.3);
+}
+
+/* =========================================================
+   ACHIEVEMENTS
+========================================================= */
+
+.achievements {
+    margin-top: 20px;
+    padding: 22px;
+}
+
+.achievements h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.achievement-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.achievement {
+    padding: 13px;
+
+    border-radius: 11px;
+
+    background:
+        rgba(0,0,0,.35);
+
+    border:
+        1px solid
+        rgba(255,255,255,.05);
+
+    color: #444;
+
+    font-size: 13px;
+
+    transition: .3s;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.achievement.unlocked {
+    color: white;
+
+    border-color:
+        rgba(255,230,0,.55);
+
+    background:
+        rgba(255,230,0,.06);
+
+    box-shadow:
+        0 0 18px
+        rgba(255,230,0,.18);
+
+    transform:
+        translateY(-2px);
+}
+
+/* =========================================================
+   FLOATING MONEY
+========================================================= */
+
+.floating-text {
+    position: fixed;
+
+    pointer-events: none;
+
+    font-size: 23px;
+    font-weight: 900;
+
+    color: #ffe600;
+
+    text-shadow:
+        0 0 8px #ff8c00,
+        0 0 20px #ff4500;
+
+    animation:
+        floatUp .8s
+        cubic-bezier(.2,.8,.3,1)
+        forwards;
+
+    z-index: 9999;
+
+    white-space: nowrap;
+}
+
+.floating-text.criticalText {
+    color: #fff;
+    font-size: 28px;
+
+    text-shadow:
+        0 0 8px #fff,
+        0 0 20px #ffe600,
+        0 0 40px #ff4500;
+}
+
+@keyframes floatUp {
+    0% {
+        opacity: 0;
+        transform:
+            translate(-50%, 15px)
+            scale(.5);
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, -90px)
+            scale(1.25);
+    }
+}
+
+/* =========================================================
+   PARTICLES
+========================================================= */
+
+.particle {
+    position: fixed;
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    z-index: 9998;
+
+    box-shadow:
+        0 0 8px currentColor;
+
+    animation:
+        particleFly .7s ease-out forwards;
+}
+
+@keyframes particleFly {
+    0% {
+        opacity: 1;
+
+        transform:
+            translate(0,0)
+            scale(1);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(var(--x),var(--y))
+            scale(0);
+    }
+}
+
+/* =========================================================
+   LEVEL UP OVERLAY
+========================================================= */
+
+.levelUp {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    pointer-events: none;
+
+    z-index: 9990;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,140,0,.18),
+            transparent 55%
+        );
+
+    animation:
+        levelUpScreen 1.5s ease-out forwards;
+}
+
+.levelUp span {
+    font-size:
+        clamp(40px, 10vw, 95px);
+
+    font-weight: 900;
+
+    color: #ffe600;
+
+    text-align: center;
+
+    text-shadow:
+        0 0 10px #ffe600,
+        0 0 30px #ff8c00,
+        0 0 70px #ff4500;
+
+    animation:
+        levelText 1.25s
+        cubic-bezier(.2,.8,.3,1)
+        forwards;
+}
+
+@keyframes levelUpScreen {
+    0% {
+        opacity: 0;
+        backdrop-filter: blur(0);
+    }
+
+    15% {
+        opacity: 1;
+        backdrop-filter: blur(4px);
+    }
+
+    55% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        backdrop-filter: blur(0);
+    }
+}
+
+@keyframes levelText {
+    0% {
+        transform:
+            scale(.2)
+            rotate(-8deg);
+
+        filter: brightness(2);
+    }
+
+    25% {
+        transform:
+            scale(1.3)
+            rotate(3deg);
+    }
+
+    50% {
+        transform:
+            scale(.95)
+            rotate(0);
+    }
+
+    70% {
+        transform: scale(1.08);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* =========================================================
+   SHOCKWAVE
+========================================================= */
+
+.shockwave {
+    position: fixed;
+
+    width: 30px;
+    height: 30px;
+
+    border-radius: 50%;
+
+    border:
+        3px solid
+        #ffe600;
+
+    pointer-events: none;
+
+    z-index: 9995;
+
+    animation:
+        shockwave .8s ease-out forwards;
+
+    box-shadow:
+        0 0 20px #ffe600,
+        inset 0 0 20px #ff8c00;
+}
+
+@keyframes shockwave {
+    from {
+        opacity: 1;
+        transform: translate(-50%,-50%) scale(.2);
+    }
+
+    to {
+        opacity: 0;
+        transform: translate(-50%,-50%) scale(12);
+    }
+}
+
+/* =========================================================
+   ACHIEVEMENT POPUP
+========================================================= */
+
+.achievement-popup {
+    position: fixed;
+
+    top: 25px;
+    right: 25px;
+
+    width: min(360px, calc(100% - 30px));
+
+    padding: 16px 18px;
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(25,25,30,.97),
+            rgba(8,8,10,.97)
+        );
+
+    border:
+        1px solid
+        rgba(255,230,0,.5);
+
+    box-shadow:
+        0 10px 50px rgba(0,0,0,.7),
+        0 0 35px rgba(255,230,0,.18);
+
+    backdrop-filter: blur(15px);
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    z-index: 10000;
+
+    animation:
+        achievementIn .55s
+        cubic-bezier(.2,.8,.3,1)
+        forwards;
+}
+
+.achievement-popup.hide {
+    animation:
+        achievementOut .45s ease forwards;
+}
+
+.achievement-popup-icon {
+    width: 52px;
+    height: 52px;
+
+    flex-shrink: 0;
+
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #ffe600;
+
+    background:
+        rgba(255,230,0,.08);
+
+    border:
+        1px solid
+        rgba(255,230,0,.25);
+
+    box-shadow:
+        0 0 25px
+        rgba(255,230,0,.15);
+}
+
+.achievement-popup-icon .icon {
+    width: 30px;
+    height: 30px;
+}
+
+.achievement-popup-content small {
+    display: block;
+
+    color: #ffe600;
+
+    font-size: 10px;
+    
